@@ -1,0 +1,257 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Self-hosted fonts (no Google Fonts fetch at build time) */
+@import "@fontsource-variable/montserrat";
+
+/* next-themes sets class="dark" or class="light" on <html>. Dark is the default. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Dark Glass (default: :root and .dark) */
+:root,
+.dark {
+  --background: #07070c;
+  --foreground: #ecedf6;
+  --muted: #9496aa;
+  --card: rgb(255 255 255 / 0.06);
+  --border: rgb(255 255 255 / 0.12);
+  --accent: #818cf8;
+  --accent-2: #22d3ee;
+  --on-accent: #0b0b14;
+  --glow-a: rgb(129 140 248 / 0.25);
+  --glow-b: rgb(34 211 238 / 0.18);
+  --shadow: rgb(0 0 0 / 0.35);
+  --bar: rgb(7 7 12 / 0.8);
+  color-scheme: dark;
+}
+
+/* Light variant of the same glass style (.light is defined after :root, so it wins) */
+.light {
+  --background: #eef0f7;
+  --foreground: #14142a;
+  --muted: #5d6080;
+  --card: rgb(255 255 255 / 0.6);
+  --border: rgb(20 20 50 / 0.1);
+  --accent: #4f46e5;
+  --accent-2: #0e7490;
+  --on-accent: #ffffff;
+  --glow-a: rgb(129 140 248 / 0.2);
+  --glow-b: rgb(34 211 238 / 0.14);
+  --shadow: rgb(20 20 50 / 0.12);
+  --bar: rgb(238 240 247 / 0.85);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-on-accent: var(--on-accent);
+
+  /* Montserrat for every role: interface, article text and code. */
+  --font-sans: "Montserrat Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Montserrat Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Montserrat Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(60% 50% at 15% 0%, var(--glow-a), transparent 70%),
+    radial-gradient(50% 40% at 90% 10%, var(--glow-b), transparent 70%);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass surfaces: translucent fill, frosted blur, soft edge. */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 32px -16px var(--shadow);
+}
+
+/* Sticky bars: more opaque, so content scrolling underneath stays out of the way. */
+.glass-bar {
+  background: var(--bar);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 32px -16px var(--shadow);
+}
+
+/* Glass cards that lift and light their edge on hover. */
+.glass-interactive {
+  transition: transform 0.2s, border-color 0.2s;
+}
+.glass-interactive:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* Square icon button (theme toggle). */
+.btn-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+}
+
+/* Small uppercase monospace labels: categories, dates, section names. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+/* Gradient text for display headlines. */
+.text-gradient {
+  background-image: linear-gradient(90deg, var(--foreground), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Text inputs and textareas. */
+.field {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 0.5rem 0.75rem;
+  color: var(--foreground);
+  outline: none;
+}
+.field:focus {
+  border-color: var(--accent);
+}
+
+/* Buttons: a glass pill, or a gradient pill for the main action. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn:disabled {
+  opacity: 0.5;
+}
+.btn-primary {
+  background-image: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+  color: var(--on-accent);
+}
+.btn-primary:hover {
+  color: var(--on-accent);
+  filter: brightness(1.08);
+}
+
+/* Article body: serif, large, relaxed. Used as `<div class="prose-article">`. */
+.prose-article {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.75;
+  max-width: 42.5rem;
+}
+/* Body text is 18.4px. Headings are larger and bold; the base styles reset them to body size. */
+.prose-article p {
+  margin: 0 0 1.25em;
+}
+.prose-article h2,
+.prose-article h3 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  scroll-margin-top: 6rem;
+}
+.prose-article h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 2.25em 0 0.6em;
+}
+.prose-article h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 1.75em 0 0.5em;
+}
+.prose-article ul,
+.prose-article ol {
+  margin: 0 0 1.25em;
+  padding-left: 1.5em;
+}
+.prose-article ul {
+  list-style: disc;
+}
+.prose-article ol {
+  list-style: decimal;
+}
+.prose-article blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  color: var(--muted);
+  margin: 0 0 1.25em;
+}
+.prose-article hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2em 0;
+}
+.prose-article a {
+  color: var(--accent);
+}
+.prose-article code,
+.prose-article pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.prose-article pre {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+.prose-article img {
+  border-radius: 0.75rem;
+}
+
+/* Editor placeholder: shown in the empty first paragraph of the Admin editor. */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

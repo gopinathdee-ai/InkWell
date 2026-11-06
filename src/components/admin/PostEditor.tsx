@@ -8,6 +8,8 @@ import { editorInitialFrom, type EditorInitial } from "@/lib/admin-editor";
 import type { PostStatus, SaveResult } from "@/lib/db/admin";
 import type { PostWithTags } from "@/lib/db/queries";
 import { slugify } from "@/lib/slug";
+import { DateField } from "./DateField";
+import { useToast } from "./Toast";
 import { RichEditor } from "./RichEditor";
 import { TagInput } from "./TagInput";
 import { uploadImage } from "./upload";
@@ -29,19 +31,16 @@ const buttonClass =
 export function PostEditor({
   post,
   tagSuggestions,
-  notice,
 }: {
   post: PostWithTags | null;
   tagSuggestions: string[];
-  notice?: string;
 }) {
+  const toast = useToast();
   const initial = editorInitialFrom(post);
   const [form, setForm] = useState<EditorInitial>(initial);
   const [postId, setPostId] = useState<string | null>(initial.id);
   const [save, setSave] = useState<SaveState>({ kind: "idle" });
   const [coverBusy, setCoverBusy] = useState(false);
-  const [coverError, setCoverError] = useState<string | null>(null);
-  const [editorError, setEditorError] = useState<string | null>(null);
 
   // Refs hold the latest values for timers and queued saves.
   const formRef = useRef(form);
@@ -56,7 +55,8 @@ export function PostEditor({
 
   // Saves run one at a time. Each run reads the latest form, so a queued save never
   // sends stale data. The first save of a new post creates it.
-  const saveNow = useCallback((status?: PostStatus) => {
+  // `announce` is the toast shown after a manual Save, Publish or Unpublish.
+  const saveNow = useCallback((status?: PostStatus, announce?: string) => {
     clearTimeout(timer.current);
     queue.current = queue.current.then(async () => {
       const snapshot = status ? { ...formRef.current, status } : formRef.current;
@@ -67,10 +67,12 @@ export function PostEditor({
         result = await savePostAction({ ...snapshot, id: idRef.current });
       } catch {
         setSave({ kind: "error", message: "Could not save. Check your connection." });
+        if (announce) toast("Could not save. Check your connection.", "error");
         return;
       }
       if (!result.ok) {
         setSave({ kind: "error", message: result.error });
+        if (announce) toast(result.error, "error");
         return;
       }
 
@@ -84,9 +86,10 @@ export function PostEditor({
         ...(formRef.current.slugAuto ? { slug: result.slug } : {}),
       });
       setSave({ kind: "saved", at: result.savedAt });
+      if (announce) toast(announce);
     });
     return queue.current;
-  }, []);
+  }, [toast]);
 
   const update = (patch: Partial<EditorInitial>) => {
     const next = { ...formRef.current, ...patch };
@@ -101,12 +104,11 @@ export function PostEditor({
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const uploadCover = async (file: File) => {
-    setCoverError(null);
     setCoverBusy(true);
     const result = await uploadImage(file);
     setCoverBusy(false);
     if ("error" in result) {
-      setCoverError(result.error);
+      toast(result.error, "error");
       return;
     }
     update({
@@ -133,11 +135,11 @@ export function PostEditor({
               Preview
             </Link>
           )}
-          <button type="button" className={buttonClass} onClick={() => void saveNow()}>
+          <button type="button" className={buttonClass} onClick={() => void saveNow(undefined, "Post saved.")}>
             Save
           </button>
           {isPublished ? (
-            <button type="button" className={buttonClass} onClick={() => void saveNow("draft")}>
+            <button type="button" className={buttonClass} onClick={() => void saveNow("draft", "Post unpublished.")}>
               Unpublish
             </button>
           ) : (
@@ -146,7 +148,7 @@ export function PostEditor({
               className="btn btn-primary disabled:opacity-50"
               disabled={!canPublish}
               title={canPublish ? "Publish this post" : "Add a cover image to publish"}
-              onClick={() => void saveNow("published")}
+              onClick={() => void saveNow("published", "Post published.")}
             >
               Publish
             </button>
@@ -154,11 +156,6 @@ export function PostEditor({
         </div>
       </div>
 
-      {(notice || editorError) && (
-        <p role="alert" className="rounded glass px-4 py-2 text-sm">
-          {notice ?? editorError}
-        </p>
-      )}
       {!canPublish && !isPublished && (
         <p className="text-xs text-muted">A cover image is required before the post can be published.</p>
       )}
@@ -170,12 +167,11 @@ export function PostEditor({
             value={form.title}
             onChange={(event) => update({ title: event.target.value })}
             placeholder="Post title"
-            className="w-full bg-transparent text-3xl font-extrabold tracking-tight outline-none placeholder:text-muted"
+            className="field px-4 py-3 text-3xl font-extrabold tracking-tight placeholder:font-semibold placeholder:text-muted"
           />
           <RichEditor
             initialHtml={initial.contentHtml}
             onChange={(html) => update({ contentHtml: html })}
-            onError={setEditorError}
           />
         </div>
 
@@ -217,7 +213,6 @@ export function PostEditor({
                 </button>
               )}
             </div>
-            {coverError && <p className="text-xs text-red-600 dark:text-red-400">{coverError}</p>}
             <label className="flex flex-col gap-1 text-xs font-medium text-muted">
               Alt text
               <input
@@ -244,6 +239,11 @@ export function PostEditor({
               className={inputClass}
             />
             <p className="text-xs text-muted">/posts/{form.slug || "..."}</p>
+          </Section>
+
+          <Section title="Published date">
+            <DateField value={form.publishedDate} onChange={(publishedDate) => update({ publishedDate })} />
+            <p className="text-xs text-muted">Empty uses the date of first publishing.</p>
           </Section>
 
           <Section title="Excerpt">

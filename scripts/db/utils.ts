@@ -15,7 +15,10 @@ export async function confirmPhrase(question: string, phrase: string) {
     process.exit(1);
   }
   const rl = createInterface({ input: process.stdin, output: process.stdout });
-  const answer = await rl.question(`${question}\nType ${phrase} to continue: `);
+  // Bold red for the phrase the user must type (ESC[1;31m ... ESC[0m).
+  const esc = String.fromCharCode(27);
+  const highlighted = `${esc}[1;31m${phrase}${esc}[0m`;
+  const answer = await rl.question(`${question}\nType ${highlighted} to continue: `);
   rl.close();
   if (answer.trim() !== phrase) {
     console.log("Confirmation did not match. Nothing was changed.");

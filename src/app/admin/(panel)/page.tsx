@@ -8,11 +8,9 @@ export const dynamic = "force-dynamic";
 
 const actionClass = "text-sm font-medium text-muted hover:text-accent";
 
-export default async function PostsDashboard(props: PageProps<"/admin">) {
+export default async function PostsDashboard() {
   await requireAdmin();
-  const { notice } = await props.searchParams;
   const posts = await listAdminPosts();
-  const message = Array.isArray(notice) ? notice[0] : notice;
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,12 +23,6 @@ export default async function PostsDashboard(props: PageProps<"/admin">) {
           New post
         </Link>
       </div>
-
-      {message && (
-        <p role="alert" className="rounded glass px-4 py-2 text-sm">
-          {message}
-        </p>
-      )}
 
       {posts.length === 0 ? (
         <p className="text-muted">No posts yet. Create your first post.</p>
@@ -92,7 +84,8 @@ export default async function PostsDashboard(props: PageProps<"/admin">) {
                       <ConfirmForm
                         action={deletePostAction}
                         fields={{ id: post.id }}
-                        message={`Delete "${post.title}"? This cannot be undone.`}
+                        title="Delete this post?"
+                        message={`"${post.title}" will be permanently deleted. This cannot be undone.`}
                         label="Delete"
                       />
                     </div>

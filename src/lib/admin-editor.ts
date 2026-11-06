@@ -16,6 +16,8 @@ export type EditorInitial = {
   metaDescription: string;
   tagNames: string[];
   status: PostStatus;
+  // YYYY-MM-DD, or empty to use the date of first publication.
+  publishedDate: string;
 };
 
 export function editorInitialFrom(post: PostWithTags | null): EditorInitial {
@@ -33,6 +35,7 @@ export function editorInitialFrom(post: PostWithTags | null): EditorInitial {
       metaDescription: "",
       tagNames: [],
       status: "draft",
+      publishedDate: "",
     };
   }
   return {
@@ -48,5 +51,6 @@ export function editorInitialFrom(post: PostWithTags | null): EditorInitial {
     metaDescription: post.metaDescription ?? "",
     tagNames: post.tags.map((tag) => tag.name),
     status: post.status,
+    publishedDate: post.publishedAt ? post.publishedAt.toISOString().slice(0, 10) : "",
   };
 }

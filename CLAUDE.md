@@ -21,6 +21,6 @@ Build steps 1 to 5 are done: public site (step 3), auth (step 4) and Admin posts
 - Keep `cacheComponents` off. Pages that read the database use `export const dynamic = "force-dynamic"`.
 - Database access only through `src/lib/db` (`getDb()`). Never import `pg` in components.
 - Sanitize post HTML on save. Every Server Action and route handler in Admin must call `requireAdmin()`.
-- Branding lives in `src/lib/site-config.ts`. The author name can be changed in Admin > Settings and is stored in `site_settings`; `site-config.ts` is the fallback. Colors and fonts come from the tokens in `src/app/globals.css`.
+- Branding lives in `src/lib/site-config.ts`. The blog name, author name and About the blogger text are set in Admin > Settings and stored in `site_settings`; `site-config.ts` is the fallback. Colors and fonts come from the tokens in `src/app/globals.css`.
 - Single admin account from env vars; no public sign-up.
 - Out of scope for v1: scheduling, comments, newsletter, roles, revisions, media library, analytics.

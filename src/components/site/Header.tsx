@@ -1,14 +1,20 @@
+import Image from "next/image";
 import Link from "next/link";
+import logo from "@/app/icon.png";
+import { brandFontCss } from "@/lib/brand-fonts";
 import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/db/settings";
 import { ThemeToggle } from "./ThemeToggle";
 
 // A floating glass bar that stays at the top while the page scrolls.
-export function Header() {
+export async function Header() {
+  const { siteName, brandFont } = await getSiteSettings();
   return (
     <header className="sticky top-0 z-20 px-4 pt-4">
       <div className="glass-bar mx-auto flex max-w-6xl items-center justify-between gap-6 rounded-full px-5 py-2.5">
-        <Link href="/" className="text-gradient text-lg font-extrabold tracking-tight">
-          {siteConfig.name}
+        <Link href="/" className="flex shrink-0 items-center gap-3">
+          <Image src={logo} alt="" width={32} height={32} priority />
+          <span className="text-gradient text-lg font-extrabold tracking-tight" style={{ fontFamily: brandFontCss(brandFont) }}>{siteName}</span>
         </Link>
         <nav className="flex items-center gap-5 text-sm font-medium text-muted">
           <form action="/search" role="search" className="hidden md:block">

@@ -5,11 +5,9 @@ import { listTagsWithCounts } from "@/lib/db/admin";
 
 export const dynamic = "force-dynamic";
 
-export default async function TagsPage(props: PageProps<"/admin/tags">) {
+export default async function TagsPage() {
   await requireAdmin();
-  const { notice } = await props.searchParams;
   const tags = await listTagsWithCounts();
-  const message = Array.isArray(notice) ? notice[0] : notice;
 
   return (
     <div className="flex flex-col gap-6">
@@ -19,12 +17,6 @@ export default async function TagsPage(props: PageProps<"/admin/tags">) {
           Tags are created from the post editor. Unused tags can be removed here.
         </p>
       </div>
-
-      {message && (
-        <p role="alert" className="rounded glass px-4 py-2 text-sm">
-          {message}
-        </p>
-      )}
 
       {tags.length === 0 ? (
         <p className="text-muted">No tags yet.</p>
@@ -50,8 +42,10 @@ export default async function TagsPage(props: PageProps<"/admin/tags">) {
                       <ConfirmForm
                         action={deleteTagAction}
                         fields={{ id: tag.id }}
-                        message={`Remove the tag "${tag.name}"?`}
+                        title="Remove this tag?"
+                        message={`The tag "${tag.name}" will be removed.`}
                         label="Remove"
+                        confirmLabel="Remove"
                       />
                     ) : (
                       <span className="text-muted">In use</span>

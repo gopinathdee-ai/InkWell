@@ -5,12 +5,12 @@ import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useToast } from "./Toast";
 import { uploadImage } from "./upload";
 
 type Props = {
   initialHtml: string;
   onChange: (html: string) => void;
-  onError: (message: string) => void;
 };
 
 const isImage = (file: File) => file.type.startsWith("image/");
@@ -128,7 +128,8 @@ function ToolButton({
 
 const Divider = () => <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" />;
 
-export function RichEditor({ initialHtml, onChange, onError }: Props) {
+export function RichEditor({ initialHtml, onChange }: Props) {
+  const toast = useToast();
   const fileInput = useRef<HTMLInputElement>(null);
   const editorRef = useRef<Editor | null>(null);
   const insertRef = useRef<(files: File[]) => Promise<void>>(async () => {});
@@ -139,7 +140,7 @@ export function RichEditor({ initialHtml, onChange, onError }: Props) {
     for (const file of files) {
       const result = await uploadImage(file);
       if ("error" in result) {
-        onError(result.error);
+        toast(result.error, "error");
         continue;
       }
       const suggested = file.name.replace(/\.[^.]+$/, "");

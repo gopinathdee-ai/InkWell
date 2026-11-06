@@ -3,6 +3,10 @@
 
 /* Self-hosted fonts (no Google Fonts fetch at build time) */
 @import "@fontsource-variable/montserrat";
+@import "@fontsource-variable/dancing-script";
+@import "@fontsource-variable/playfair-display";
+@import "@fontsource/space-mono";
+@import "@fontsource/bebas-neue";
 
 /* next-themes sets class="dark" or class="light" on <html>. Dark is the default. */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -22,6 +26,9 @@
   --glow-b: rgb(34 211 238 / 0.18);
   --shadow: rgb(0 0 0 / 0.35);
   --bar: rgb(7 7 12 / 0.8);
+  --danger: #f87171;
+  --on-danger: #0b0b14;
+  --panel: #15151e;
   color-scheme: dark;
 }
 
@@ -39,6 +46,9 @@
   --glow-b: rgb(34 211 238 / 0.14);
   --shadow: rgb(20 20 50 / 0.12);
   --bar: rgb(238 240 247 / 0.85);
+  --danger: #dc2626;
+  --on-danger: #ffffff;
+  --panel: #ffffff;
   color-scheme: light;
 }
 
@@ -94,6 +104,77 @@ body {
 .glass-interactive:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
+}
+
+/* Article styles at card size, for the author bio beside the featured post. */
+.prose-compact {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: none;
+}
+.prose-compact p {
+  margin: 0 0 0.75em;
+}
+
+/* Toasts: opaque enough to read over any content, with a clear edge. */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--bar);
+  border: 1px solid var(--accent);
+  border-radius: 0.875rem;
+  box-shadow: 0 16px 40px -12px var(--shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+}
+.toast-error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Popovers (date calendar): solid, so text behind them does not show through. */
+.popover {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px -20px var(--shadow);
+}
+
+/* Confirmation dialog: opaque glass with a blurred backdrop. */
+.confirm-dialog {
+  /* Tailwind's reset sets margin to 0, which would pin the dialog to the corner. */
+  margin: auto;
+  width: min(420px, calc(100vw - 2rem));
+  max-width: none;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--bar);
+  color: var(--foreground);
+  box-shadow: 0 24px 60px -20px var(--shadow);
+  padding: 0;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.confirm-dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Destructive button, used in confirmation dialogs. */
+.btn-danger {
+  background: var(--danger);
+  border-color: transparent;
+  color: var(--on-danger);
+}
+.btn-danger:hover {
+  color: var(--on-danger);
+  filter: brightness(1.08);
 }
 
 /* Square icon button (theme toggle). */

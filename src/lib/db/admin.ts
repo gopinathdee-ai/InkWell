@@ -25,6 +25,8 @@ export type SaveInput = {
   metaDescription: string;
   tagNames: string[];
   status: PostStatus;
+  // YYYY-MM-DD, or empty to keep the existing date (or use now on first publish).
+  publishedDate: string;
 };
 
 export type SaveResult =
@@ -100,6 +102,20 @@ export async function savePost(input: SaveInput): Promise<SaveResult> {
   if (!slug) return { ok: false, error: "That slug is already used by another post." };
 
   const now = new Date();
+
+  const dateInput = input.publishedDate.trim();
+  let publishedAt: Date | null;
+  if (dateInput) {
+    const parsed = new Date(`${dateInput}T00:00:00Z`);
+    // Rejects impossible dates such as 2021-02-31, which JavaScript would roll over.
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateInput) || parsed.toISOString().slice(0, 10) !== dateInput) {
+      return { ok: false, error: "Use a valid published date." };
+    }
+    publishedAt = parsed;
+  } else {
+    publishedAt = current?.publishedAt ?? (input.status === "published" ? now : null);
+  }
+
   const values = {
     title,
     slug,
@@ -110,7 +126,7 @@ export async function savePost(input: SaveInput): Promise<SaveResult> {
     metaTitle: clean(input.metaTitle, 120) || null,
     metaDescription: clean(input.metaDescription, 300) || null,
     status: input.status,
-    publishedAt: current?.publishedAt ?? (input.status === "published" ? now : null),
+    publishedAt,
     updatedAt: now,
   };
 
